@@ -58,7 +58,7 @@ export default function App() {
     setMessage("");
     setSpinnerOn(true);
     axios
-      .post(login, userCreds)
+      .post(loginUrl, userCreds)
       .then((res) => {
         const token = res.data.token;
         localStorage.setItem("token", token);
@@ -199,10 +199,7 @@ export default function App() {
                 <ArticleForm
                   postArticle={postArticle}
                   updateArticle={updateArticle}
-                  setCurrentArticleId={articles.find(
-                    (art) => art.article_id === currentArticleId
-                  )}
-                  number={currentArticleId}
+                  setCurrentArticleId={currentArticleId}
                 />
                 <Articles
                   articles={articles}
