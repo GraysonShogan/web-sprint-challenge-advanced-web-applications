@@ -58,7 +58,7 @@ export default function App() {
     setMessage("");
     setSpinnerOn(true);
     axios
-      .post(logon, userCreds)
+      .post(login, userCreds)
       .then((res) => {
         const token = res.data.token;
         localStorage.setItem("token", token);
@@ -92,7 +92,7 @@ export default function App() {
         setSpinnerOn(false);
       })
       .catch((err) => {
-        setMessage(err.config.message);
+        setMessage(err.res.data.message);
         setSpinnerOn(false);
       });
   };
@@ -112,7 +112,7 @@ export default function App() {
         setSpinnerOn(false);
       })
       .catch((err) => {
-        setMessage(err.config.message);
+        setMessage(err.res.data.message);
         setSpinnerOn(false);
       });
   };
@@ -138,21 +138,44 @@ export default function App() {
       })
       .catch((err) => {
         console.error(err);
-        setMessage("");
+        setMessage(err.res.data.message);
         setSpinnerOn(false);
       });
   };
 
   const deleteArticle = (article_id) => {
     // ✨ implement
+    setMessage("");
+    setSpinnerOn(true);
+    axiosWithAuth()
+      .delete(`${articlesUrl}/${article_id}`)
+      .then((res) => {
+        setSpinnerOn(false);
+        setMessage(res.data.message);
+        setArticles(
+          articles.filter((art) => {
+            return art.article_id !== article_id;
+          })
+        );
+      })
+      .catch((err) => {
+        console.error(err);
+        setMessage(err.res.data.message);
+        setSpinnerOn(false);
+      });
   };
 
   return (
     // ✨ fix the JSX: `Spinner`, `Message`, `LoginForm`, `ArticleForm` and `Articles` expect props ❗
     <>
-      <Spinner />
-      <Message />
-      <button id="logout" onClick={logout}>
+      <Spinner on={spinnerOn} />
+      <Message message={message} />
+      <button
+        id="logout"
+        onClick={() => {
+          logout();
+        }}
+      >
         Logout from app
       </button>
       <div id="wrapper" style={{ opacity: spinnerOn ? "0.25" : "1" }}>
@@ -168,13 +191,26 @@ export default function App() {
           </NavLink>
         </nav>
         <Routes>
-          <Route path="/" element={<LoginForm />} />
+          <Route path="/" element={<LoginForm login={login} />} />
           <Route
             path="articles"
             element={
               <>
-                <ArticleForm />
-                <Articles />
+                <ArticleForm
+                  postArticle={postArticle}
+                  updateArticle={updateArticle}
+                  setCurrentArticleId={articles.find(
+                    (art) => art.article_id === currentArticleId
+                  )}
+                  number={currentArticleId}
+                />
+                <Articles
+                  articles={articles}
+                  getArticles={getArticles}
+                  deleteArticle={deleteArticle}
+                  setCurrentArticleId={setCurrentArticleId}
+                  currentArticleId={currentArticleId}
+                />
               </>
             }
           />
