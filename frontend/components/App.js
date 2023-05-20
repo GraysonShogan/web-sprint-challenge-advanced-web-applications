@@ -102,11 +102,45 @@ export default function App() {
     // The flow is very similar to the `getArticles` function.
     // You'll know what to do! Use log statements or breakpoints
     // to inspect the response from the server.
+    setMessage("");
+    setSpinnerOn(true);
+    axiosWithAuth()
+      .post(articlesUrl, article)
+      .then((res) => {
+        setArticles([...articles, res.data.article]);
+        setMessage(res.data.message);
+        setSpinnerOn(false);
+      })
+      .catch((err) => {
+        setMessage(err.config.message);
+        setSpinnerOn(false);
+      });
   };
 
-  const updateArticle = ({ article_id, article }) => {
+  const updateArticle = ({ article }) => {
     // ✨ implement
     // You got this!
+    const { article_id, ...changes } = article;
+
+    setMessage("");
+    setSpinnerOn(true);
+    axiosWithAuth()
+      .put(`${articlesUrl}/${article_id}`, changes)
+      .then((res) => {
+        setArticles(
+          articles.map((art) => {
+            return art.article_id === article_id ? res.data.article : art;
+          })
+        );
+        setMessage(res.data.message);
+        setSpinnerOn(false);
+        setCurrentArticleId(null);
+      })
+      .catch((err) => {
+        console.error(err);
+        setMessage("");
+        setSpinnerOn(false);
+      });
   };
 
   const deleteArticle = (article_id) => {
